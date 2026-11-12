@@ -1,20 +1,21 @@
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import { searchAll, toggleFollow } from '../redux/usersSlice';
 import { joinClan } from '../redux/clansSlice';
 import { openPrivate } from '../redux/chatSlice';
-import { setTab } from '../redux/uiSlice';
 import { initial } from '../utils/money';
 
 export default function SearchTab() {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { results, searching } = useSelector((s) => s.users);
   const myClan = useSelector((s) => s.users.me && s.users.me.clan);
   const meId = useSelector((s) => s.auth.user && s.auth.user.id);
   const [q, setQ] = useState('');
 
   const run = () => { if (q.trim().length >= 2) dispatch(searchAll(q.trim())); };
-  const message = (u) => { dispatch(openPrivate({ id: u.id, username: u.username })); dispatch(setTab('duel')); };
+  const message = (u) => { dispatch(openPrivate({ id: u.id, username: u.username })); navigate('/duel'); };
 
   return (
     <div className="max-w-3xl w-full mx-auto p-6 flex-grow">
