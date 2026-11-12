@@ -1,0 +1,39 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Plus Jakarta Sans', sans-serif;
+}
+
+@layer base {
+  body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background-color: #020617; /* slate-950, overscroll zamanı ağ ekran görünməsin */
+  }
+
+  /* Tailwind v4-də düymələrin kursoru "default" olur, v3 davranışını qaytarırıq */
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+
+  /* v4-də placeholder rəngi dəyişib, orijinal görünüş üçün */
+  input::placeholder,
+  textarea::placeholder {
+    color: #64748b; /* slate-500 */
+  }
+}
+
+/* Scrollbar (orijinal style.css) */
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 4px;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #334155 transparent; /* Firefox */
+}
