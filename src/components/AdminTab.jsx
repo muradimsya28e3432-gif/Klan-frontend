@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Settings } from 'lucide-react';
 import AdminRevenue from './AdminRevenue';
 import AdminDuels from './AdminDuels';
 import AdminPayouts from './AdminPayouts';
@@ -16,12 +17,14 @@ export default function AdminTab() {
   const Active = SECTIONS.find((s) => s.id === sec).C;
 
   return (
-    <div className="max-w-4xl w-full mx-auto p-6 flex-grow">
-      <h2 className="text-xl font-extrabold text-rose-500 mb-4">⚙️ Admin Paneli</h2>
-      <div className="flex flex-wrap gap-2 mb-5">
+    <div className="page-wrap max-w-[1100px] flex-grow">
+      <div className="flex items-center gap-4 mb-6">
+        <div className="icon-tile"><Settings size={28} /></div>
+        <h2 className="title-page">Admin <span className="text-pink">Paneli</span></h2>
+      </div>
+      <div className="flex flex-wrap gap-2 mb-6">
         {SECTIONS.map((s) => (
-          <button key={s.id} onClick={() => setSec(s.id)}
-            className={`text-xs font-bold px-3 py-1.5 rounded-lg transition ${sec === s.id ? 'bg-rose-600 text-white' : 'bg-slate-800 text-slate-400'}`}>{s.label}</button>
+          <button key={s.id} onClick={() => setSec(s.id)} className={`pill ${sec === s.id ? 'pill-on' : ''}`}>{s.label}</button>
         ))}
       </div>
       <Active />

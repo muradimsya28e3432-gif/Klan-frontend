@@ -21,16 +21,16 @@ export default function Home() {
   useRealtime(token);
 
   return (
-    <div className="bg-slate-950 text-white min-h-screen flex flex-col justify-between">
-      <div className="flex flex-col min-h-screen justify-between">
-        <Header />
+    <div className="text-white min-h-screen flex flex-col pb-[72px] md:pb-0">
+      <Header />
+      <main className="flex-1 flex flex-col">
         <Outlet />
-      </div>
+      </main>
 
       {modal === 'createClan' && <CreateClanModal />}
       {modal === 'topUp' && <TopUpModal />}
 
-      <footer className="text-center py-3 text-xs text-slate-500 border-t border-slate-900">© 2026 Klan.az — Bütün hüquqlar qorunur.</footer>
+      <footer className="text-center py-4 text-[13px] text-tx3 border-t border-line">© 2026 Klan.az — Bütün hüquqlar qorunur.</footer>
     </div>
   );
 }

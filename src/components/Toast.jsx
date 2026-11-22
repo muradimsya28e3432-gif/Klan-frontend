@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { CheckCircle2, XCircle } from 'lucide-react';
 import { clearToast } from '../redux/uiSlice';
 
 export default function Toast() {
@@ -13,8 +14,11 @@ export default function Toast() {
   }, [toast, dispatch]);
 
   if (!toast) return null;
-  const cls = toast.type === 'error' ? 'bg-rose-600 shadow-rose-600/30' : 'bg-emerald-600 shadow-emerald-600/30';
+  const err = toast.type === 'error';
   return (
-    <div role="status" className={`fixed bottom-6 left-1/2 -translate-x-1/2 z-[60] px-4 py-2.5 rounded-xl text-xs font-bold shadow-lg ${cls}`}>{toast.text}</div>
+    <div role="status" className={`modal-card fixed bottom-24 md:bottom-8 left-1/2 -translate-x-1/2 z-[60] max-w-[calc(100vw-32px)] flex items-center gap-2.5 px-5 py-3 rounded-2xl text-[14px] font-semibold text-white border backdrop-blur ${err ? 'bg-[#2a0f24]/95 border-danger shadow-[0_0_30px_-6px_rgba(255,69,102,.6)]' : 'bg-[#06241f]/95 border-mint shadow-[0_0_30px_-6px_rgba(0,214,154,.6)]'}`}>
+      {err ? <XCircle size={20} className="text-danger shrink-0" /> : <CheckCircle2 size={20} className="text-mint shrink-0" />}
+      {toast.text}
+    </div>
   );
 }

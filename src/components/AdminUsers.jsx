@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { Search } from 'lucide-react';
 import { fetchAdminUsers, setBan } from '../redux/adminSlice';
 import { azn } from '../utils/money';
 
@@ -12,26 +13,27 @@ export default function AdminUsers() {
 
   return (
     <div>
-      <div className="flex gap-2 mb-4">
-        <input value={q} onChange={(e) => setQ(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && dispatch(fetchAdminUsers(q.trim()))} maxLength={30} placeholder="İstifadəçi adı..."
-          className="bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-sm w-full focus:outline-none focus:border-rose-500" />
-        <button onClick={() => dispatch(fetchAdminUsers(q.trim()))} className="bg-rose-600 hover:bg-rose-500 px-5 py-2.5 rounded-xl text-xs font-bold transition">Axtar</button>
+      <div className="flex gap-3 mb-5">
+        <div className="input-wrap flex-1">
+          <Search className="lead" />
+          <input value={q} onChange={(e) => setQ(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && dispatch(fetchAdminUsers(q.trim()))} maxLength={30} placeholder="İstifadəçi adı..." className="input" />
+        </div>
+        <button onClick={() => dispatch(fetchAdminUsers(q.trim()))} className="btn btn-primary">Axtar</button>
       </div>
 
-      <div className="space-y-2">
+      <div className="space-y-3">
         {users.map((u) => (
-          <div key={u._id} className="bg-slate-900 border border-slate-800 rounded-xl p-3 flex items-center justify-between gap-2">
+          <div key={u._id} className="card card-hover !p-4 flex flex-wrap items-center justify-between gap-3">
             <div>
-              <p className="text-sm font-bold">{u.username} {u.role === 'admin' && <span className="text-[10px] text-rose-400">admin</span>} {u.isBanned && <span className="text-[10px] text-amber-400">bloklu</span>}</p>
-              <p className="text-[11px] text-slate-400">Balans: {azn(u.balance)}</p>
+              <p className="text-[16px] font-bold flex items-center gap-2">{u.username} {u.role === 'admin' && <span className="badge badge-bad !bg-pink/15 !text-pink">admin</span>} {u.isBanned && <span className="badge badge-warn">bloklu</span>}</p>
+              <p className="text-[13px] text-tx2 mt-0.5">Balans: <span className="text-mint font-semibold">{azn(u.balance)}</span></p>
             </div>
             {u.role !== 'admin' && (
-              <button onClick={() => dispatch(setBan({ id: u._id, banned: !u.isBanned }))}
-                className={`text-xs font-bold px-3 py-1.5 rounded-lg transition ${u.isBanned ? 'bg-emerald-600 hover:bg-emerald-500' : 'bg-rose-600 hover:bg-rose-500'}`}>{u.isBanned ? 'Blokdan çıxar' : 'Blokla'}</button>
+              <button onClick={() => dispatch(setBan({ id: u._id, banned: !u.isBanned }))} className={`btn ${u.isBanned ? 'btn-green' : 'btn-danger'}`}>{u.isBanned ? 'Blokdan çıxar' : 'Blokla'}</button>
             )}
           </div>
         ))}
-        {users.length === 0 && <p className="text-xs text-slate-500">İstifadəçi tapılmadı.</p>}
+        {users.length === 0 && <p className="text-[14px] text-tx3">İstifadəçi tapılmadı.</p>}
       </div>
     </div>
   );

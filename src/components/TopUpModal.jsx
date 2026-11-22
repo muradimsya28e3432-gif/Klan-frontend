@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { CreditCard, Loader2 } from 'lucide-react';
 import { createTopUp, devConfirm, clearOrder } from '../redux/walletSlice';
 import { closeModal } from '../redux/uiSlice';
 import { azn } from '../utils/money';
@@ -19,32 +20,31 @@ export default function TopUpModal() {
   };
 
   return (
-    <div className="fixed inset-0 bg-slate-950/80 z-50 flex items-center justify-center p-4">
-      <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl max-w-sm w-full shadow-2xl">
-        <h3 className="font-extrabold text-base mb-4 text-emerald-400">💳 Balansı artır</h3>
+    <div className="modal-overlay">
+      <div className="card modal-card max-w-[440px] w-full !p-7" style={{ borderColor: 'rgba(0,214,154,.45)' }}>
+        <h3 className="title-card inline-flex items-center gap-2 mb-5 text-mint"><CreditCard size={22} /> Balansı artır</h3>
 
         {!order ? (
           <>
-            <div className="grid grid-cols-4 gap-2 mb-3">
+            <div className="grid grid-cols-4 gap-2 mb-4">
               {PRESETS.map((p) => (
                 <button key={p} onClick={() => setAmount(String(p))}
-                  className={`py-2 rounded-lg text-xs font-bold border transition ${Number(amount) === p ? 'bg-emerald-600/20 border-emerald-500 text-emerald-300' : 'bg-slate-800 border-slate-700 text-slate-300'}`}>{p} ₼</button>
+                  className={`h-11 rounded-xl text-[14px] font-bold border transition ${Number(amount) === p ? 'bg-mint/15 border-mint text-mint' : 'bg-field border-line2 text-tx2 hover:text-white'}`}>{p} ₼</button>
               ))}
             </div>
-            <input value={amount} onChange={(e) => setAmount(e.target.value)} inputMode="decimal" placeholder="Məbləğ (AZN)"
-              className="bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 text-xs w-full mb-4 focus:outline-none focus:border-emerald-500" />
-            <div className="flex gap-2">
-              <button onClick={close} className="w-full bg-slate-800 hover:bg-slate-700 py-2.5 rounded-xl text-xs font-bold transition">Ləğv et</button>
-              <button onClick={create} disabled={busy} className="w-full bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 py-2.5 rounded-xl text-xs font-bold transition">Ödənişə keç</button>
+            <input value={amount} onChange={(e) => setAmount(e.target.value)} inputMode="decimal" placeholder="Məbləğ (AZN)" className="input mb-5 focus:!border-mint" />
+            <div className="flex gap-3">
+              <button onClick={close} className="btn btn-secondary w-full">Ləğv et</button>
+              <button onClick={create} disabled={busy} className="btn btn-green w-full">{busy && <Loader2 className="animate-spin" />} Ödənişə keç</button>
             </div>
           </>
         ) : (
           <>
-            <p className="text-xs text-slate-300 mb-4">Sifariş yaradıldı: <strong>{azn(order.amount)}</strong>. Ödəniş təsdiqlənəndən sonra balansınız avtomatik artacaq.</p>
-            <div className="flex gap-2">
-              <button onClick={close} className="w-full bg-slate-800 hover:bg-slate-700 py-2.5 rounded-xl text-xs font-bold transition">Bağla</button>
+            <p className="text-[14px] text-tx2 mb-5">Sifariş yaradıldı: <strong className="text-white">{azn(order.amount)}</strong>. Ödəniş təsdiqlənəndən sonra balansınız avtomatik artacaq.</p>
+            <div className="flex gap-3">
+              <button onClick={close} className="btn btn-secondary w-full">Bağla</button>
               {import.meta.env.DEV && (
-                <button onClick={() => dispatch(devConfirm(order.orderId))} className="w-full bg-amber-600 hover:bg-amber-500 py-2.5 rounded-xl text-xs font-bold transition">Test təsdiqi</button>
+                <button onClick={() => dispatch(devConfirm(order.orderId))} className="btn w-full h-11 rounded-xl bg-warn !text-[#1b1200]">Test təsdiqi</button>
               )}
             </div>
           </>

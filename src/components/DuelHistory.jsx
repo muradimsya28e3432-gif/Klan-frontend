@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { Flag } from 'lucide-react';
 import { fetchDuelHistory } from '../redux/duelSlice';
 import { azn } from '../utils/money';
 
@@ -13,15 +14,15 @@ export default function DuelHistory() {
 
   if (!history.length) return null;
   return (
-    <div className="max-w-6xl w-full mx-auto px-4 pb-4">
-      <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 shadow-xl">
-        <h3 className="text-xs font-bold text-slate-300 mb-3">🏁 Son duellər</h3>
-        <div className="space-y-2">
+    <div className="page-wrap !pt-0">
+      <div className="card">
+        <h3 className="title-card inline-flex items-center gap-2 mb-4"><Flag size={22} className="text-pink" /> Son duellər</h3>
+        <div className="space-y-2.5">
           {history.map((d) => (
-            <div key={d.id} className="flex justify-between items-center text-xs bg-slate-800/50 rounded-lg px-3 py-2">
+            <div key={d.id} className="row-item flex flex-wrap justify-between items-center gap-2 text-[14px]">
               <span className="font-bold">{d.nameA} vs {d.nameB}</span>
-              <span className="text-emerald-400">{d.winner === 'draw' ? 'Bərabərlik' : `Qalib: ${d.winner === 'A' ? d.nameA : d.nameB}`}</span>
-              <span className="text-slate-400">Fond: {azn(d.pool)}</span>
+              <span className="text-mint font-semibold">{d.winner === 'draw' ? 'Bərabərlik' : `Qalib: ${d.winner === 'A' ? d.nameA : d.nameB}`}</span>
+              <span className="text-tx2">Fond: {azn(d.pool)}</span>
             </div>
           ))}
         </div>

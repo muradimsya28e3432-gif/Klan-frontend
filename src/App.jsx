@@ -15,7 +15,7 @@ import AdminTab from './components/AdminTab';
 function DuelPage() {
   return (
     <>
-      <div className="max-w-6xl w-full mx-auto p-4 grid grid-cols-1 lg:grid-cols-3 gap-4 flex-grow my-auto">
+      <div className="page-wrap grid grid-cols-1 lg:grid-cols-[62fr_38fr] gap-5 xl:gap-6 items-start">
         <DuelPanel />
         <ChatPanel />
       </div>
