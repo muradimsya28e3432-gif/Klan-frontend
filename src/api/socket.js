@@ -1,18 +1,14 @@
 import { io } from 'socket.io-client';
 
-// VITE_SOCKET_URL yoxdursa VITE_API_URL istifadə olunur (adətən eyni serverdir)
 const clean = (v = '') => String(v).trim().replace(/\/+$/, '').replace(/\/api$/, '');
-const SOCKET_URL = clean(import.meta.env.VITE_SOCKET_URL) || clean(import.meta.env.VITE_API_URL);
-
-if (import.meta.env.PROD && !SOCKET_URL) {
-  console.error('VITE_SOCKET_URL / VITE_API_URL təyin olunmayıb! Socket bağlantısı qurulmayacaq.');
-}
+const PROD_API = 'https://klan-backend-production.up.railway.app';
+const SOCKET_URL = clean(import.meta.env.VITE_SOCKET_URL) || clean(import.meta.env.VITE_API_URL) || PROD_API;
 
 let socket = null;
 
 export function connectSocket(token) {
   disconnectSocket();
-  socket = io(SOCKET_URL || undefined, { auth: { token } });
+  socket = io(SOCKET_URL, { auth: { token } });
   return socket;
 }
 export const getSocket = () => socket;

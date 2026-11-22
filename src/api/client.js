@@ -1,10 +1,7 @@
 // Backend ünvanı: sondakı "/" və səhvən yazılmış "/api" avtomatik silinir
 const clean = (v = '') => String(v).trim().replace(/\/+$/, '').replace(/\/api$/, '');
-const BASE = clean(import.meta.env.VITE_API_URL);
-
-if (import.meta.env.PROD && !BASE) {
-  console.error('VITE_API_URL təyin olunmayıb! Sorğular Netlify-a gedəcək və 404 qaytaracaq. Netlify → Environment variables bölməsində əlavə edib yenidən deploy edin.');
-}
+const PROD_API = 'https://klan-backend-production.up.railway.app';
+const BASE = clean(import.meta.env.VITE_API_URL) || PROD_API;
 
 // Backend cavabı: { success, data } və ya { success:false, message }
 export async function api(path, { method = 'GET', body, token } = {}) {

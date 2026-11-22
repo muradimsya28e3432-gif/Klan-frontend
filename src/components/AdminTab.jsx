@@ -1,20 +1,30 @@
-import { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { clearToast } from '../redux/uiSlice';
+import { useState } from 'react';
+import AdminRevenue from './AdminRevenue';
+import AdminDuels from './AdminDuels';
+import AdminPayouts from './AdminPayouts';
+import AdminUsers from './AdminUsers';
 
-export default function Toast() {
-  const dispatch = useDispatch();
-  const toast = useSelector((s) => s.ui.toast);
+const SECTIONS = [
+  { id: 'revenue', label: '📊 Gəlir', C: AdminRevenue },
+  { id: 'duels', label: '🔥 Duellər', C: AdminDuels },
+  { id: 'payouts', label: '💸 Çıxarışlar', C: AdminPayouts },
+  { id: 'users', label: '👥 İstifadəçilər', C: AdminUsers },
+];
 
-  useEffect(() => {
-    if (!toast) return undefined;
-    const t = setTimeout(() => dispatch(clearToast()), 3000);
-    return () => clearTimeout(t);
-  }, [toast, dispatch]);
+export default function AdminTab() {
+  const [sec, setSec] = useState('revenue');
+  const Active = SECTIONS.find((s) => s.id === sec).C;
 
-  if (!toast) return null;
-  const cls = toast.type === 'error' ? 'bg-rose-600 shadow-rose-600/30' : 'bg-emerald-600 shadow-emerald-600/30';
   return (
-    <div role="status" className={`fixed bottom-6 left-1/2 -translate-x-1/2 z-[60] px-4 py-2.5 rounded-xl text-xs font-bold shadow-lg ${cls}`}>{toast.text}</div>
+    <div className="max-w-4xl w-full mx-auto p-6 flex-grow">
+      <h2 className="text-xl font-extrabold text-rose-500 mb-4">⚙️ Admin Paneli</h2>
+      <div className="flex flex-wrap gap-2 mb-5">
+        {SECTIONS.map((s) => (
+          <button key={s.id} onClick={() => setSec(s.id)}
+            className={`text-xs font-bold px-3 py-1.5 rounded-lg transition ${sec === s.id ? 'bg-rose-600 text-white' : 'bg-slate-800 text-slate-400'}`}>{s.label}</button>
+        ))}
+      </div>
+      <Active />
+    </div>
   );
 }
