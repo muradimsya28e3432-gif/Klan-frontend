@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { Search, Users, Shield, MessageSquare, UserPlus, UserCheck, Loader2, SearchX, Crown } from 'lucide-react';
-import { searchAll, toggleFollow, clearResults } from '../redux/usersSlice';
+import { searchAll, toggleFollow } from '../redux/usersSlice';
 import { joinClan } from '../redux/clansSlice';
 import { openPrivate } from '../redux/chatSlice';
 import { initial } from '../utils/money';
@@ -19,22 +19,35 @@ export default function SearchTab() {
   const [type, setType] = useState('all');
 
   const term = q.trim();
-  const valid = term.length >= 2;
+  // boş = hamısı, 2+ simvol = axtarış; yalnız 1 simvol gözləyir
+  const valid = term.length === 0 || term.length >= 2;
 
-  // yazdıqca 400ms gözləyib avtomatik axtarır (hər dəfə MongoDB-dən təzə nəticə)
+  // Həmişə "all" çəkilir, düymələr nəticəni client-də süzür (keçid ani olur)
   useEffect(() => {
-    if (!valid) { dispatch(clearResults()); return undefined; }
-    const t = setTimeout(() => dispatch(searchAll({ q: term, type })), 400);
+    if (!valid) return undefined;
+    // boş olanda dərhal, yazanda 400ms gözləyib axtarır
+    const t = setTimeout(() => dispatch(searchAll({ q: term, type: 'all' })), term ? 400 : 0);
     return () => clearTimeout(t);
-  }, [term, type, valid, dispatch]);
+  }, [term, valid, dispatch]);
 
-  const run = () => { if (valid) dispatch(searchAll({ q: term, type })); };
+  const run = () => { if (valid) dispatch(searchAll({ q: term, type: 'all' })); };
   const message = (u) => { dispatch(openPrivate({ id: u.id, username: u.username })); navigate('/duel'); };
   const join = async (id) => { await dispatch(joinClan(id)); run(); }; // qoşulandan sonra nəticələr təzələnir
 
-  const users = results ? results.users : [];
-  const clans = results ? results.clans : [];
+  const allUsers = results ? results.users : [];
+  const allClans = results ? results.clans : [];
+
+  // seçilmiş düyməyə görə göstərilənlər
+  const users = type === 'clans' ? [] : allUsers;
+  const clans = type === 'users' ? [] : allClans;
   const none = results && users.length === 0 && clans.length === 0;
+
+  const countOf = (v) => {
+    if (!results) return '';
+    if (v === 'users') return ` (${allUsers.length})`;
+    if (v === 'clans') return ` (${allClans.length})`;
+    return ` (${allUsers.length + allClans.length})`;
+  };
 
   return (
     <div className="page-wrap flex-grow">
@@ -59,7 +72,7 @@ export default function SearchTab() {
         <div className="flex flex-wrap items-center gap-2 mb-8">
           {FILTERS.map(([v, l]) => (
             <button key={v} onClick={() => setType(v)} className={`pill ${type === v ? 'pill-on' : ''}`}>
-              {l}{results && v === 'users' ? ` (${users.length})` : ''}{results && v === 'clans' ? ` (${clans.length})` : ''}
+              {l}{countOf(v)}
             </button>
           ))}
           {searching && <Loader2 size={18} className="animate-spin text-tx3 ml-1" />}
@@ -67,14 +80,14 @@ export default function SearchTab() {
 
         {!results ? (
           <div className="card text-center py-12">
-            <Search size={56} className="mx-auto text-violet mb-4" />
-            <p className="text-sub">Axtarış etmək üçün yuxarıya ən az 2 simvol daxil edin.</p>
+            {searching ? <Loader2 size={56} className="mx-auto text-violet mb-4 animate-spin" /> : <Search size={56} className="mx-auto text-violet mb-4" />}
+            <p className="text-sub">{searching ? 'Yüklənir...' : 'Axtarış üçün ən az 2 simvol daxil edin.'}</p>
           </div>
         ) : none ? (
           <div className="card text-center py-12">
             <SearchX size={56} className="mx-auto text-violet mb-4" />
             <p className="title-card">Nəticə tapılmadı</p>
-            <p className="text-sub mt-1">Başqa ad ilə yenidən yoxlayın.</p>
+            <p className="text-sub mt-1">{term ? 'Başqa ad ilə yenidən yoxlayın.' : 'Hələ heç nə yoxdur.'}</p>
           </div>
         ) : (
           <div className="space-y-8">
