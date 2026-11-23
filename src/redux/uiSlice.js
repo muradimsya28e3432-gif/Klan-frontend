@@ -3,8 +3,10 @@ import { createSlice, isFulfilled, isRejected } from '@reduxjs/toolkit';
 // tab: duel | klans | search | wallet | profile | admin ; modal: null | createClan | topUp
 const OK = {
   'clans/create/fulfilled': 'Klan yaradıldı',
-  'clans/join/fulfilled': 'Klana qoşuldunuz',
+  'clans/join/fulfilled': 'İstək göndərildi. Klan sahibinin cavabını gözləyin',
   'clans/leave/fulfilled': 'Klandan çıxdınız',
+  'clans/accept/fulfilled': 'Oyunçu klana qəbul edildi',
+  'clans/reject/fulfilled': 'İstək rədd edildi',
   'wallet/devConfirm/fulfilled': 'Balans artırıldı',
   'wallet/requestPayout/fulfilled': 'Çıxarış sorğusu göndərildi',
   'admin/createDuel/fulfilled': 'Yeni duel yaradıldı',

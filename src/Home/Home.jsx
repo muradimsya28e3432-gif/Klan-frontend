@@ -7,6 +7,7 @@ import useRealtime from '../hooks/useRealtime';
 import Header from '../components/Header';
 import CreateClanModal from '../components/CreateClanModal';
 import TopUpModal from '../components/TopUpModal';
+import ClanRequestAlert from '../components/ClanRequestAlert';
 
 export default function Home() {
   const dispatch = useDispatch();
@@ -29,6 +30,7 @@ export default function Home() {
 
       {modal === 'createClan' && <CreateClanModal />}
       {modal === 'topUp' && <TopUpModal />}
+      <ClanRequestAlert />
 
       <footer className="text-center py-4 text-[13px] text-tx3 border-t border-line">© 2026 Klan.az — Bütün hüquqlar qorunur.</footer>
     </div>
