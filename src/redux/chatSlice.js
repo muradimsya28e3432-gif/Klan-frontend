@@ -1,59 +1,48 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { api } from '../api/client';
 import { logout } from './authSlice';
-import { fetchProfile } from './usersSlice';
 
-// incoming: klan sahibinə gələn gözləyən istəklər, sent: mənim göndərdiyim istəklər
-const initialState = { list: [], loading: false, incoming: [], sent: [] };
+const MAX = 200; // yaddaşda saxlanan maksimum mesaj sayı
+const initialState = { mode: 'global', target: null, global: [], priv: {} };
 
-export const fetchClans = createAsyncThunk('clans/list', () => api('/clans?limit=50'));
-export const fetchIncoming = createAsyncThunk('clans/incoming', () => api('/clans/requests/incoming'));
-export const fetchMyRequests = createAsyncThunk('clans/myRequests', () => api('/clans/requests/mine'));
-
-const mutate = (name, call) => createAsyncThunk(`clans/${name}`, async (arg, { dispatch, rejectWithValue }) => {
-  try {
-    const r = await call(arg);
-    await Promise.all([dispatch(fetchClans()), dispatch(fetchProfile()), dispatch(fetchMyRequests())]); // siyahı, profil və istəklər təzələnsin
-    return r;
-  } catch (e) { return rejectWithValue(e.message); }
+export const loadGlobal = createAsyncThunk('chat/loadGlobal', async (_, { rejectWithValue }) => {
+  try { return await api('/chat/global?limit=50'); }
+  catch (e) { return rejectWithValue(e.message); }
 });
 
-export const createClan = mutate('create', (name) => api('/clans', { method: 'POST', body: { name } }));
-export const joinClan = mutate('join', (id) => api(`/clans/${id}/join`, { method: 'POST' })); // indi İSTƏK göndərir
-export const leaveClan = mutate('leave', () => api('/clans/leave', { method: 'POST' }));
-
-// Klan sahibi: istəyi qəbul et / rədd et (id = istəyin ID-si)
-export const acceptRequest = createAsyncThunk('clans/accept', async (id, { dispatch, rejectWithValue }) => {
-  try {
-    const r = await api(`/clans/requests/${id}/accept`, { method: 'POST' });
-    dispatch(fetchClans()); dispatch(fetchProfile()); // üzv sayı yenilənsin
-    return r;
-  } catch (e) { dispatch(fetchIncoming()); return rejectWithValue(e.message); } // köhnəlmiş istək siyahıdan çıxsın
+export const loadPrivate = createAsyncThunk('chat/loadPrivate', async (userId, { rejectWithValue }) => {
+  try { return { userId: String(userId), items: await api(`/chat/private/${userId}?limit=50`) }; }
+  catch (e) { return rejectWithValue(e.message); }
 });
 
-export const rejectRequest = createAsyncThunk('clans/reject', async (id, { dispatch, rejectWithValue }) => {
-  try { return await api(`/clans/requests/${id}/reject`, { method: 'POST' }); }
-  catch (e) { dispatch(fetchIncoming()); return rejectWithValue(e.message); }
-});
+// eyni mesaj təkrar əlavə olunmasın, siyahı MAX-dan böyüməsin
+const pushUnique = (list, m) => {
+  if (list.some((x) => x.id === m.id)) return list;
+  const next = [...list, m];
+  return next.length > MAX ? next.slice(-MAX) : next;
+};
 
 const slice = createSlice({
-  name: 'clans',
+  name: 'chat',
   initialState,
   reducers: {
-    // socket: clan:request (yeni istək canlı gəlir)
-    addIncoming: (s, a) => { if (!s.incoming.some((x) => x.id === a.payload.id)) s.incoming.unshift(a.payload); },
+    setChatMode: (s, a) => { s.mode = a.payload; },
+    // axtarışdan və ya çatdan istifadəçi seçilir: { id, username }
+    openPrivate: (s, a) => { s.target = { id: String(a.payload.id), username: a.payload.username }; s.mode = 'private'; },
+    // socket: chat:message -> { message, meId }
+    addMessage: (s, a) => {
+      const { message: m, meId } = a.payload;
+      if (m.type === 'global') { s.global = pushUnique(s.global, m); return; }
+      const other = String(m.sender) === String(meId) ? String(m.recipient) : String(m.sender);
+      s.priv[other] = pushUnique(s.priv[other] || [], m);
+    },
   },
   extraReducers: (b) => {
     b.addCase(logout, () => initialState)
-      .addCase(fetchClans.pending, (s) => { s.loading = true; })
-      .addCase(fetchClans.fulfilled, (s, a) => { s.loading = false; s.list = a.payload; })
-      .addCase(fetchClans.rejected, (s) => { s.loading = false; })
-      .addCase(fetchIncoming.fulfilled, (s, a) => { s.incoming = a.payload; })
-      .addCase(fetchMyRequests.fulfilled, (s, a) => { s.sent = a.payload; })
-      .addCase(acceptRequest.fulfilled, (s, a) => { s.incoming = s.incoming.filter((x) => x.id !== a.meta.arg); })
-      .addCase(rejectRequest.fulfilled, (s, a) => { s.incoming = s.incoming.filter((x) => x.id !== a.meta.arg); });
+      .addCase(loadGlobal.fulfilled, (s, a) => { s.global = a.payload; })
+      .addCase(loadPrivate.fulfilled, (s, a) => { s.priv[a.payload.userId] = a.payload.items; });
   },
 });
 
-export const { addIncoming } = slice.actions;
+export const { setChatMode, openPrivate, addMessage } = slice.actions;
 export default slice.reducer;
