@@ -6,6 +6,8 @@ import { openModal } from '../redux/uiSlice';
 import { api } from '../api/client';
 import { azn, fmtDate, initial } from '../utils/money';
 
+const TITLES = { followers: 'İzləyicilər', following: 'İzlədiklərim', gifts: 'Atılan Hədiyyələr' };
+
 function Stat({ Icon, label, value, color = 'text-white', tint, active, onClick }) {
   return (
     <button
@@ -28,29 +30,13 @@ function DetailPanel({ view, onClose }) {
   const [items, setItems] = useState(null); // null = yüklənir
   const [error, setError] = useState('');
 
-  const TITLES = { followers: 'İzləyicilər', following: 'İzlədiklərim', gifts: 'Atılan Hədiyyələr' };
-
   useEffect(() => {
     let cancelled = false;
     setItems(null);
     setError('');
-
-    const load = async () => {
-      try {
-        let data;
-        if (view === 'gifts') {
-          // Hədiyyələr cüzdan tarixçəsindən süzülür (type === 'gift')
-          const h = await api('/wallet/history?limit=50');
-          data = h.filter((t) => t.type === 'gift');
-        } else {
-          data = await api(`/users/me/${view}`); // followers | following
-        }
-        if (!cancelled) setItems(Array.isArray(data) ? data : []);
-      } catch (e) {
-        if (!cancelled) { setError(e.message); setItems([]); }
-      }
-    };
-    load();
+    api(`/users/me/${view}`) // followers | following | gifts
+      .then((data) => { if (!cancelled) setItems(Array.isArray(data) ? data : []); })
+      .catch((e) => { if (!cancelled) { setError(e.message); setItems([]); } });
     return () => { cancelled = true; };
   }, [view]);
 
@@ -76,7 +62,7 @@ function DetailPanel({ view, onClose }) {
       {items && items.length > 0 && (
         <div className="space-y-2.5 max-h-[360px] overflow-y-auto pr-1">
           {view !== 'gifts' && items.map((u) => (
-            <div key={u.id || u._id} className="row-item flex items-center gap-3">
+            <div key={u.id} className="row-item flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-pink border-2 border-pink2 font-bold flex items-center justify-center shrink-0">{initial(u.username)}</div>
               <div className="min-w-0">
                 <p className="text-[15px] font-bold truncate">{u.username}</p>
@@ -86,8 +72,11 @@ function DetailPanel({ view, onClose }) {
           ))}
 
           {view === 'gifts' && items.map((t) => (
-            <div key={t._id} className="row-item flex flex-wrap items-center justify-between gap-2 text-[14px]">
-              <span className="font-semibold inline-flex items-center gap-2"><Gift size={16} className="text-pink" /> {t.giftName || 'Hədiyyə'}</span>
+            <div key={t.id} className="row-item flex flex-wrap items-center justify-between gap-x-4 gap-y-1 text-[14px]">
+              <div className="min-w-0">
+                <p className="font-semibold inline-flex items-center gap-2"><Gift size={16} className="text-pink shrink-0" /> {t.giftName || 'Hədiyyə'}</p>
+                {t.sideName && <p className="text-[12px] text-tx3 mt-0.5">{t.sideName} tərəfinə</p>}
+              </div>
               <span className="text-tx3">{fmtDate(t.createdAt)}</span>
               <span className="font-bold text-mint">{azn(t.amount)}</span>
             </div>
