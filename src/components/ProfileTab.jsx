@@ -4,6 +4,8 @@ import { Users, UserPlus, Gift, Crown, Wallet, Coins, Loader2, X } from 'lucide-
 import { fetchProfile } from '../redux/usersSlice';
 import { openModal } from '../redux/uiSlice';
 import { api } from '../api/client';
+import ProgressCard from './ProgressCard';
+import FriendsPanel from './FriendsPanel';
 import { azn, fmtDate, initial } from '../utils/money';
 
 const TITLES = { followers: 'İzləyicilər', following: 'İzlədiklərim', gifts: 'Atılan Hədiyyələr' };
@@ -117,6 +119,9 @@ export default function ProfileTab() {
         </div>
 
         {view && <DetailPanel view={view} onClose={() => setView(null)} />}
+
+        <ProgressCard />
+        <FriendsPanel />
 
         <div className="mt-5 card-balance flex flex-wrap items-center justify-between gap-4 text-left">
           <div className="flex items-center gap-4">

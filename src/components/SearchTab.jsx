@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { Search, Users, Shield, MessageSquare, UserPlus, UserCheck, Loader2, SearchX, Crown } from 'lucide-react';
+import { Search, Users, Shield, MessageSquare, UserPlus, UserCheck, Loader2, SearchX, Crown, Heart } from 'lucide-react';
 import { searchAll, toggleFollow } from '../redux/usersSlice';
 import { joinClan } from '../redux/clansSlice';
+import { sendFriendRequest, fetchFriends } from '../redux/friendsSlice';
 import { openPrivate } from '../redux/chatSlice';
 import { initial } from '../utils/money';
 
@@ -15,8 +16,11 @@ export default function SearchTab() {
   const { results, searching } = useSelector((s) => s.users);
   const myClan = useSelector((s) => s.users.me && s.users.me.clan);
   const meId = useSelector((s) => s.auth.user && s.auth.user.id);
+  const { list: friends, sent } = useSelector((s) => s.friends);
   const [q, setQ] = useState('');
   const [type, setType] = useState('all');
+
+  useEffect(() => { dispatch(fetchFriends()); }, [dispatch]);
 
   const term = q.trim();
   // boş = hamısı, 2+ simvol = axtarış; yalnız 1 simvol gözləyir
@@ -108,6 +112,11 @@ export default function SearchTab() {
                       {u.id !== meId && (
                         <div className="flex gap-2">
                           <button onClick={() => message(u)} className="btn btn-secondary btn-sm !h-11"><MessageSquare /> Mesaj</button>
+                          {friends.some((f) => String(f.id) === String(u.id)) ? (
+                            <span className="badge badge-ok !h-11 !px-4"><Heart size={14} /> Dostunuz</span>
+                          ) : (
+                            <button disabled={sent.includes(u.id)} onClick={() => dispatch(sendFriendRequest(u.id))} className="btn btn-secondary btn-sm !h-11"><Heart /> {sent.includes(u.id) ? 'İstək göndərilib' : 'Dost ol'}</button>
+                          )}
                           <button onClick={() => dispatch(toggleFollow(u.id))}
                             className={`btn btn-sm !h-11 ${u.followed ? 'btn-secondary' : 'btn-primary'}`}>{u.followed ? <><UserCheck /> İzlənilir</> : <><UserPlus /> İzlə</>}</button>
                         </div>

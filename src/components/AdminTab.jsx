@@ -4,10 +4,12 @@ import AdminRevenue from './AdminRevenue';
 import AdminDuels from './AdminDuels';
 import AdminPayouts from './AdminPayouts';
 import AdminUsers from './AdminUsers';
+import AdminSeasons from './AdminSeasons';
 
 const SECTIONS = [
   { id: 'revenue', label: '📊 Gəlir', C: AdminRevenue },
   { id: 'duels', label: '🔥 Duellər', C: AdminDuels },
+  { id: 'seasons', label: '🏆 Mövsümlər', C: AdminSeasons },
   { id: 'payouts', label: '💸 Çıxarışlar', C: AdminPayouts },
   { id: 'users', label: '👥 İstifadəçilər', C: AdminUsers },
 ];

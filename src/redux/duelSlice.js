@@ -2,6 +2,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { api } from '../api/client';
 import { logout } from './authSlice';
 import { fetchBalance } from './walletSlice';
+import { fetchProgress } from './progressSlice';
 
 const initialState = { duel: null, loaded: false, gifts: [], selected: { category: 0, sub: 0 }, sending: false, history: [] };
 
@@ -19,6 +20,7 @@ export const sendGift = createAsyncThunk('duel/sendGift', async (side, { getStat
   try {
     const r = await api(`/duels/${duel.id}/gift`, { method: 'POST', body: { side, category: selected.category, sub: selected.sub } });
     dispatch(fetchBalance());
+    dispatch(fetchProgress()); // YENİ: XP / mövsüm xalı yenilənsin
     return r;
   } catch (e) { dispatch(fetchBalance()); return rejectWithValue(e.message); }
 });
@@ -27,8 +29,7 @@ const slice = createSlice({
   name: 'duel',
   initialState,
   reducers: {
-    // socket: duel:update / duel:finished
-    duelUpdated: (s, a) => { if (!s.duel || s.duel.id === a.payload.id) s.duel = a.payload; },
+    duelUpdated: (s, a) => { if (!s.duel || s.duel.id === a.payload.id) s.duel = a.payload; }, // socket
     selectGift: (s, a) => { s.selected = { ...s.selected, ...a.payload }; },
   },
   extraReducers: (b) => {

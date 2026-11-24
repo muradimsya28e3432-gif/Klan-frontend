@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Shield, Plus, Crown, Users, Clock, Loader2, LogOut } from 'lucide-react';
 import { fetchClans, fetchMyRequests, joinClan, leaveClan } from '../redux/clansSlice';
 import { openModal } from '../redux/uiSlice';
+import ClanHubPanel from './ClanHubPanel';
 
 export default function ClansTab() {
   const dispatch = useDispatch();
@@ -29,6 +30,8 @@ export default function ClansTab() {
           </button>
         )}
       </div>
+
+      <ClanHubPanel />
 
       {loading && list.length === 0 && <Loader2 className="animate-spin text-tx3" />}
       {!loading && list.length === 0 && <p className="text-sub">Hələ klan yoxdur.</p>}

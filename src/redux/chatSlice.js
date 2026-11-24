@@ -3,7 +3,7 @@ import { api } from '../api/client';
 import { logout } from './authSlice';
 
 const MAX = 200; // yaddaşda saxlanan maksimum mesaj sayı
-const initialState = { mode: 'global', target: null, global: [], priv: {} };
+const initialState = { mode: 'global', target: null, global: [], priv: {}, clan: [] };
 
 export const loadGlobal = createAsyncThunk('chat/loadGlobal', async (_, { rejectWithValue }) => {
   try { return await api('/chat/global?limit=50'); }
@@ -12,6 +12,11 @@ export const loadGlobal = createAsyncThunk('chat/loadGlobal', async (_, { reject
 
 export const loadPrivate = createAsyncThunk('chat/loadPrivate', async (userId, { rejectWithValue }) => {
   try { return { userId: String(userId), items: await api(`/chat/private/${userId}?limit=50`) }; }
+  catch (e) { return rejectWithValue(e.message); }
+});
+
+export const loadClan = createAsyncThunk('chat/loadClan', async (_, { rejectWithValue }) => { // YENİ: klan çatı tarixçəsi
+  try { return await api('/clan-hub/chat?limit=50'); }
   catch (e) { return rejectWithValue(e.message); }
 });
 
@@ -26,13 +31,13 @@ const slice = createSlice({
   name: 'chat',
   initialState,
   reducers: {
-    setChatMode: (s, a) => { s.mode = a.payload; },
-    // axtarışdan və ya çatdan istifadəçi seçilir: { id, username }
+    setChatMode: (s, a) => { s.mode = a.payload; }, // 'global' | 'private' | 'clan'
     openPrivate: (s, a) => { s.target = { id: String(a.payload.id), username: a.payload.username }; s.mode = 'private'; },
     // socket: chat:message -> { message, meId }
     addMessage: (s, a) => {
       const { message: m, meId } = a.payload;
       if (m.type === 'global') { s.global = pushUnique(s.global, m); return; }
+      if (m.type === 'clan') { s.clan = pushUnique(s.clan, m); return; } // YENİ
       const other = String(m.sender) === String(meId) ? String(m.recipient) : String(m.sender);
       s.priv[other] = pushUnique(s.priv[other] || [], m);
     },
@@ -40,7 +45,8 @@ const slice = createSlice({
   extraReducers: (b) => {
     b.addCase(logout, () => initialState)
       .addCase(loadGlobal.fulfilled, (s, a) => { s.global = a.payload; })
-      .addCase(loadPrivate.fulfilled, (s, a) => { s.priv[a.payload.userId] = a.payload.items; });
+      .addCase(loadPrivate.fulfilled, (s, a) => { s.priv[a.payload.userId] = a.payload.items; })
+      .addCase(loadClan.fulfilled, (s, a) => { s.clan = a.payload; });
   },
 });
 

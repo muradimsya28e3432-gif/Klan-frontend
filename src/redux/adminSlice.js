@@ -4,7 +4,7 @@ import { logout } from './authSlice';
 import { fetchDuel, duelUpdated } from './duelSlice';
 import { toQepik } from '../utils/money';
 
-const initialState = { stats: null, users: [], payouts: [], withdrawals: [] };
+const initialState = { stats: null, users: [], payouts: [], withdrawals: [], seasons: [] };
 
 // xətanı mesaj kimi qaytaran sarğı (uiSlice onu bildiriş kimi göstərir)
 const wrap = (fn) => async (arg, thunk) => {
@@ -50,6 +50,14 @@ export const platformWithdraw = createAsyncThunk('admin/withdraw', wrap(async ({
   return r;
 }));
 
+// YENİ: mövsümlər
+export const fetchSeasons = createAsyncThunk('admin/seasons', wrap(() => api('/admin/seasons')));
+export const endSeason = createAsyncThunk('admin/endSeason', wrap(async (_, { dispatch }) => {
+  const r = await api('/admin/seasons/end', { method: 'POST' });
+  dispatch(fetchSeasons());
+  return r;
+}));
+
 const slice = createSlice({
   name: 'admin',
   initialState,
@@ -71,7 +79,8 @@ const slice = createSlice({
       .addCase(rejectPayout.fulfilled, (s, a) => {
         const p = s.payouts.find((x) => x._id === a.payload.id);
         if (p) p.status = a.payload.status;
-      });
+      })
+      .addCase(fetchSeasons.fulfilled, (s, a) => { s.seasons = a.payload; });
   },
 });
 

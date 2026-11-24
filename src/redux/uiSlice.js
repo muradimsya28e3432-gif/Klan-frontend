@@ -1,12 +1,16 @@
 import { createSlice, isFulfilled, isRejected } from '@reduxjs/toolkit';
 
-// tab: duel | klans | search | wallet | profile | admin ; modal: null | createClan | topUp
+// tab: duel | klans | rank | search | wallet | profile | admin ; modal: null | createClan | topUp
 const OK = {
   'clans/create/fulfilled': 'Klan yaradıldı',
   'clans/join/fulfilled': 'İstək göndərildi. Klan sahibinin cavabını gözləyin',
   'clans/leave/fulfilled': 'Klandan çıxdınız',
   'clans/accept/fulfilled': 'Oyunçu klana qəbul edildi',
   'clans/reject/fulfilled': 'İstək rədd edildi',
+  'friends/send/fulfilled': 'Dostluq istəyi göndərildi',
+  'friends/accept/fulfilled': 'Dost əlavə olundu',
+  'friends/reject/fulfilled': 'İstək rədd edildi',
+  'friends/remove/fulfilled': 'Dostluq silindi',
   'wallet/devConfirm/fulfilled': 'Balans artırıldı',
   'wallet/requestPayout/fulfilled': 'Çıxarış sorğusu göndərildi',
   'admin/createDuel/fulfilled': 'Yeni duel yaradıldı',
@@ -14,8 +18,10 @@ const OK = {
   'admin/approve/fulfilled': 'Çıxarış təsdiqləndi',
   'admin/reject/fulfilled': 'Çıxarış rədd edildi, pul qaytarıldı',
   'admin/withdraw/fulfilled': 'Gəlir çıxarıldı',
+  'admin/endSeason/fulfilled': 'Mövsüm bitirildi, medallar verildi',
 };
 const CLOSE_MODAL = ['clans/create/fulfilled', 'wallet/devConfirm/fulfilled'];
+const SILENT = ['auth/', 'progress/', 'friends/list', 'friends/incoming', 'clanHub/']; // arxa plan sorğularında xəta bildirişi göstərilmir
 
 const message = (a) => {
   if (a.type === 'duel/sendGift/fulfilled') return `${a.payload.gift.name} göndərildi`;
@@ -39,8 +45,7 @@ const slice = createSlice({
       if (text) s.toast = { id: Date.now(), type: 'success', text };
       if (CLOSE_MODAL.includes(a.type)) s.modal = null;
     })
-      // bütün uğursuz thunk-lar xəta bildirişi göstərir (giriş formu özü göstərir)
-      .addMatcher((a) => isRejected(a) && typeof a.payload === 'string' && !a.type.startsWith('auth/'), (s, a) => {
+      .addMatcher((a) => isRejected(a) && typeof a.payload === 'string' && !SILENT.some((p) => a.type.startsWith(p)), (s, a) => {
         s.toast = { id: Date.now(), type: 'error', text: a.payload };
       });
   },

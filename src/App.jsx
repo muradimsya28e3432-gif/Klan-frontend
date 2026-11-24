@@ -7,6 +7,7 @@ import DuelPanel from './components/DuelPanel';
 import ChatPanel from './components/ChatPanel';
 import DuelHistory from './components/DuelHistory';
 import ClansTab from './components/ClansTab';
+import RankTab from './components/RankTab';
 import SearchTab from './components/SearchTab';
 import WalletTab from './components/WalletTab';
 import ProfileTab from './components/ProfileTab';
@@ -42,6 +43,7 @@ export default function App() {
             <Route index element={<Navigate to="/duel" replace />} />
             <Route path="/duel" element={<DuelPage />} />
             <Route path="/klans" element={<ClansTab />} />
+            <Route path="/rank" element={<RankTab />} />
             <Route path="/search" element={<SearchTab />} />
             <Route path="/wallet" element={<WalletTab />} />
             <Route path="/profile" element={<ProfileTab />} />

@@ -1,6 +1,6 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { NavLink } from 'react-router-dom';
-import { Flame, Shield, Search, CreditCard, User, Settings, LogOut, Plus } from 'lucide-react';
+import { Flame, Shield, Trophy, Search, CreditCard, User, Settings, LogOut, Plus } from 'lucide-react';
 import { logout } from '../redux/authSlice';
 import { openModal } from '../redux/uiSlice';
 import { azn, initial } from '../utils/money';
@@ -8,6 +8,7 @@ import { azn, initial } from '../utils/money';
 export const TABS = [
   { id: 'duel', label: 'Duellər', short: 'Duellər', Icon: Flame },
   { id: 'klans', label: 'Klanlar', short: 'Klanlar', Icon: Shield },
+  { id: 'rank', label: 'Reytinq', short: 'Reytinq', Icon: Trophy },
   { id: 'search', label: 'Axtarış', short: 'Axtarış', Icon: Search },
   { id: 'wallet', label: 'Cüzdan', short: 'Cüzdan', Icon: CreditCard },
   { id: 'profile', label: 'Profilim', short: 'Profilim', Icon: User },
@@ -22,7 +23,7 @@ export default function Header() {
 
   const desktopCls = ({ isActive }) => `nav-pill ${isActive ? 'on' : ''}`;
   const mobileCls = ({ isActive }) =>
-    `flex flex-col items-center gap-1 min-w-[54px] px-2 py-1.5 rounded-xl text-[11px] font-semibold transition ${isActive ? 'text-pink' : 'text-tx3'}`;
+    `flex flex-col items-center gap-1 min-w-[44px] px-1.5 py-1.5 rounded-xl text-[10px] font-semibold transition ${isActive ? 'text-pink' : 'text-tx3'}`;
 
   return (
     <>
@@ -64,10 +65,10 @@ export default function Header() {
         </div>
       </header>
 
-      <nav className="md:hidden fixed bottom-0 inset-x-0 z-40 flex justify-around gap-1 px-2 pt-2 pb-[max(8px,env(safe-area-inset-bottom))] bg-bg2/95 backdrop-blur border-t border-line">
+      <nav className="md:hidden fixed bottom-0 inset-x-0 z-40 flex justify-around gap-0.5 px-1 pt-2 pb-[max(8px,env(safe-area-inset-bottom))] bg-bg2/95 backdrop-blur border-t border-line">
         {tabs.map((t) => (
           <NavLink key={t.id} to={`/${t.id}`} className={mobileCls}>
-            <t.Icon size={22} />
+            <t.Icon size={21} />
             {t.short}
           </NavLink>
         ))}
