@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Trophy, Users, Shield, Crown, Loader2, CalendarClock } from 'lucide-react';
+import { Trophy, Users, Shield, Crown, Loader2, CalendarClock, Hourglass } from 'lucide-react';
 import { fetchUserBoard, fetchClanBoard, fetchSeason } from '../redux/progressSlice';
 import { fmtDate, initial } from '../utils/money';
 
@@ -16,9 +16,20 @@ function Place({ i }) {
   );
 }
 
+// Backend-də reytinq endpointi hələ aktiv deyilsə (404) göstərilir
+function Soon() {
+  return (
+    <div className="card text-center py-12">
+      <Hourglass size={56} className="mx-auto text-violet mb-4" />
+      <p className="title-card">Reytinq tezliklə aktiv olacaq</p>
+      <p className="text-sub mt-1">Server tərəfi hələ hazır deyil. Bir az sonra yenidən yoxlayın.</p>
+    </div>
+  );
+}
+
 export default function RankTab() {
   const dispatch = useDispatch();
-  const { users, clans, season, by } = useSelector((s) => s.progress);
+  const { users, clans, season, by, missing } = useSelector((s) => s.progress);
   const meId = useSelector((s) => s.auth.user && s.auth.user.id);
   const myClanId = useSelector((s) => s.users.me && s.users.me.clan && s.users.me.clan.id);
   const [view, setView] = useState('users');
@@ -32,7 +43,11 @@ export default function RankTab() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, view]);
 
-  const changeSort = (v) => { setLoading(true); dispatch(fetchUserBoard(v)).finally(() => setLoading(false)); };
+  const changeSort = (v) => {
+    if (v === by) return;
+    setLoading(true);
+    dispatch(fetchUserBoard(v)).finally(() => setLoading(false));
+  };
 
   const active = season && (season.active || season.current);
   const endsAt = active && (active.endsAt || active.endDate);
@@ -63,7 +78,7 @@ export default function RankTab() {
             {v === 'users' ? <Users size={14} className="inline mr-1.5 -mt-0.5" /> : <Shield size={14} className="inline mr-1.5 -mt-0.5" />}{l}
           </button>
         ))}
-        {view === 'users' && (
+        {view === 'users' && !missing.users && (
           <span className="ml-auto flex gap-2">
             {SORTS.map(([v, l]) => (
               <button key={v} onClick={() => changeSort(v)} className={`pill !h-9 !text-[13px] ${by === v ? 'pill-on' : ''}`}>{l}</button>
@@ -74,7 +89,7 @@ export default function RankTab() {
       </div>
 
       {view === 'users' ? (
-        users.length === 0 ? <div className="card text-center py-12"><Trophy size={56} className="mx-auto text-violet mb-4" /><p className="title-card">Reytinq hələ boşdur</p></div> : (
+        missing.users ? <Soon /> : users.length === 0 ? <div className="card text-center py-12"><Trophy size={56} className="mx-auto text-violet mb-4" /><p className="title-card">Reytinq hələ boşdur</p></div> : (
           <div className="space-y-2.5">
             {users.map((u, i) => {
               const mine = String(u.id) === String(meId);
@@ -94,7 +109,7 @@ export default function RankTab() {
           </div>
         )
       ) : (
-        clans.length === 0 ? <div className="card text-center py-12"><Shield size={56} className="mx-auto text-violet mb-4" /><p className="title-card">Klan reytinqi hələ boşdur</p></div> : (
+        missing.clans ? <Soon /> : clans.length === 0 ? <div className="card text-center py-12"><Shield size={56} className="mx-auto text-violet mb-4" /><p className="title-card">Klan reytinqi hələ boşdur</p></div> : (
           <div className="space-y-2.5">
             {clans.map((c, i) => {
               const mine = myClanId && String(c.id) === String(myClanId);

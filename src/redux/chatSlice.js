@@ -15,9 +15,10 @@ export const loadPrivate = createAsyncThunk('chat/loadPrivate', async (userId, {
   catch (e) { return rejectWithValue(e.message); }
 });
 
-export const loadClan = createAsyncThunk('chat/loadClan', async (_, { rejectWithValue }) => { // YENİ: klan çatı tarixçəsi
+// klan çatı tarixçəsi; backend-də endpoint hələ yoxdursa (404) xəta bildirişi göstərmir, boş siyahı qaytarır
+export const loadClan = createAsyncThunk('chat/loadClan', async (_, { rejectWithValue }) => {
   try { return await api('/clan-hub/chat?limit=50'); }
-  catch (e) { return rejectWithValue(e.message); }
+  catch (e) { return e.status === 404 ? [] : rejectWithValue(e.message); }
 });
 
 // eyni mesaj təkrar əlavə olunmasın, siyahı MAX-dan böyüməsin
@@ -37,7 +38,7 @@ const slice = createSlice({
     addMessage: (s, a) => {
       const { message: m, meId } = a.payload;
       if (m.type === 'global') { s.global = pushUnique(s.global, m); return; }
-      if (m.type === 'clan') { s.clan = pushUnique(s.clan, m); return; } // YENİ
+      if (m.type === 'clan') { s.clan = pushUnique(s.clan, m); return; }
       const other = String(m.sender) === String(meId) ? String(m.recipient) : String(m.sender);
       s.priv[other] = pushUnique(s.priv[other] || [], m);
     },

@@ -23,15 +23,19 @@ export default function ClanHubPanel() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const myClan = useSelector((s) => s.users.me && s.users.me.clan);
-  const { stats, members } = useSelector((s) => s.clanHub);
+  const { stats, members, missing } = useSelector((s) => s.clanHub);
+  const clanId = myClan && myClan.id;
 
+  // myClan obyekti hər profil yenilənəndə dəyişir, ona görə asılılıq yalnız klanın ID-sidir
   useEffect(() => {
-    if (!myClan) return;
+    if (!clanId) return;
     dispatch(fetchClanStats());
     dispatch(fetchClanMembers());
-  }, [dispatch, myClan]);
+  }, [dispatch, clanId]);
 
   if (!myClan) return null;
+  // backend-də klan mərkəzi hələ yoxdursa (404) panel tamamilə gizlənir, səhifədə boş/xəta bloku qalmır
+  if (missing.stats && missing.members) return null;
 
   const points = stats && (stats.points ?? stats.seasonPoints ?? stats.score);
   const rank = stats && (stats.rank ?? stats.seasonRank);
