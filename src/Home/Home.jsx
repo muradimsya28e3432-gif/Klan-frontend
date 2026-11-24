@@ -4,6 +4,7 @@ import { Outlet } from 'react-router-dom';
 import { fetchMe } from '../redux/authSlice';
 import { fetchProfile } from '../redux/usersSlice';
 import useRealtime from '../hooks/useRealtime';
+import usePaymentReturn from '../hooks/usePaymentReturn';
 import Header from '../components/Header';
 import CreateClanModal from '../components/CreateClanModal';
 import TopUpModal from '../components/TopUpModal';
@@ -20,6 +21,7 @@ export default function Home() {
     });
   }, [dispatch]);
   useRealtime(token);
+  usePaymentReturn(); // Stripe-dan qayıdış
 
   return (
     <div className="text-white min-h-screen flex flex-col pb-[72px] md:pb-0">
