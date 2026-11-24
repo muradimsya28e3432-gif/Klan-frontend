@@ -1,6 +1,6 @@
 import { createSlice, isFulfilled, isRejected } from '@reduxjs/toolkit';
 
-// tab: duel | klans | rank | search | wallet | profile | admin ; modal: null | createClan | topUp
+// modal: null | createClan | topUp
 const OK = {
   'clans/create/fulfilled': 'Klan yaradıldı',
   'clans/join/fulfilled': 'İstək göndərildi. Klan sahibinin cavabını gözləyin',
@@ -19,9 +19,18 @@ const OK = {
   'admin/reject/fulfilled': 'Çıxarış rədd edildi, pul qaytarıldı',
   'admin/withdraw/fulfilled': 'Gəlir çıxarıldı',
   'admin/endSeason/fulfilled': 'Mövsüm bitirildi, medallar verildi',
+  // YENİ
+  'tournaments/join/fulfilled': 'Turnirə qoşuldunuz',
+  'community/create/fulfilled': 'Paylaşım əlavə olundu',
+  'shop/buy/fulfilled': 'Məhsul alındı',
+  'shop/equip/fulfilled': 'Məhsul istifadəyə verildi',
 };
 const CLOSE_MODAL = ['clans/create/fulfilled', 'wallet/devConfirm/fulfilled'];
-const SILENT = ['auth/', 'progress/', 'friends/list', 'friends/incoming', 'clanHub/']; // arxa plan sorğularında xəta bildirişi göstərilmir
+// arxa plan sorğularında xəta bildirişi göstərilmir
+const SILENT = [
+  'auth/', 'progress/', 'friends/list', 'friends/incoming', 'clanHub/',
+  'tournaments/list', 'community/list', 'community/comments', 'shop/list',
+];
 
 const message = (a) => {
   if (a.type === 'duel/sendGift/fulfilled') return `${a.payload.gift.name} göndərildi`;
@@ -31,7 +40,7 @@ const message = (a) => {
 
 const slice = createSlice({
   name: 'ui',
-  initialState: { tab: 'duel', modal: null, toast: null },
+  initialState: { tab: 'home', modal: null, toast: null },
   reducers: {
     setTab: (s, a) => { s.tab = a.payload; },
     openModal: (s, a) => { s.modal = a.payload; },

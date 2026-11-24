@@ -10,9 +10,12 @@ import ui from '../redux/uiSlice';
 import clanHub from '../redux/clanHubSlice';
 import friends from '../redux/friendsSlice';
 import progress from '../redux/progressSlice';
+import tournaments from '../redux/tournamentsSlice';
+import community from '../redux/communitySlice';
+import shop from '../redux/shopSlice';
 
 export const store = configureStore({
-  reducer: { auth, wallet, duel, chat, clans, users, admin, ui, clanHub, friends, progress },
+  reducer: { auth, wallet, duel, chat, clans, users, admin, ui, clanHub, friends, progress, tournaments, community, shop },
 });
 
 // Token dəyişən kimi sinxron olaraq localStorage-ə yazılır (komponent effektlərindən əvvəl)

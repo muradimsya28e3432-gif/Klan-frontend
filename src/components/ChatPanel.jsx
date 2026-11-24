@@ -7,7 +7,7 @@ import { emitAck } from '../api/socket';
 
 const EVENTS = { global: 'chat:global', private: 'chat:private', clan: 'chat:clan' };
 
-export default function ChatPanel() {
+export default function ChatPanel({ full = false }) {
   const dispatch = useDispatch();
   const me = useSelector((s) => s.auth.user);
   const myClan = useSelector((s) => s.users.me && s.users.me.clan);
@@ -38,9 +38,10 @@ export default function ChatPanel() {
 
   const title = effMode === 'global' ? 'Ümumi Çat' : effMode === 'clan' ? (myClan ? myClan.name : 'Klan çatı') : target ? target.username : 'İstifadəçi seçilməyib';
   const noTarget = effMode === 'private' && !target;
+  const size = full ? 'h-[calc(100vh-330px)] min-h-[440px] md:h-[640px]' : 'h-[560px] lg:h-[720px] lg:sticky lg:top-[112px]';
 
   return (
-    <div className="card flex flex-col h-[560px] lg:h-[720px] lg:sticky lg:top-[112px]">
+    <div className={`card flex flex-col ${size}`}>
       <div className="flex flex-wrap justify-between items-center gap-2 pb-4 border-b border-line">
         <div className="flex flex-wrap gap-2">
           <button onClick={() => dispatch(setChatMode('global'))} className={tabCls('global')}><MessageCircle size={16} /> Ümumi</button>
@@ -58,7 +59,7 @@ export default function ChatPanel() {
           <div className="h-full flex flex-col items-center justify-center text-center px-4">
             <MessagesSquare size={56} className="text-violet mb-4" />
             <p className="font-bold text-[16px] text-tx">{noTarget ? 'İstifadəçi seçilməyib' : 'Hələ mesaj yoxdur...'}</p>
-            <p className="text-[13px] text-tx3 mt-1">{noTarget ? 'Axtarışdan istifadəçi tapıb "Mesaj" düyməsini basın.' : 'İlk mesajı yazaraq söhbəti başladın!'}</p>
+            <p className="text-[13px] text-tx3 mt-1">{noTarget ? 'Dostlarınızdan birini seçin və ya Axtarışdan istifadəçi tapıb "Mesaj" düyməsini basın.' : 'İlk mesajı yazaraq söhbəti başladın!'}</p>
           </div>
         )}
         {list.map((m) => {
